@@ -9,19 +9,22 @@
     "lint": "next lint"
   },
   "dependencies": {
+    "@headlessui/react": "^2.2.0",
+    "cmdk": "^1.0.4",
+    "lucide-react": "^0.479.0",
+    "next": "14.2.24",
     "react": "^18",
-    "react-dom": "^18",
-    "next": "14.2.24"
+    "react-dom": "^18"
   },
   "devDependencies": {
-    "typescript": "^5",
     "@types/node": "^20",
     "@types/react": "^18",
     "@types/react-dom": "^18",
+    "eslint": "^8",
+    "eslint-config-next": "14.2.24",
     "postcss": "^8",
     "tailwindcss": "^3.4.1",
-    "eslint": "^8",
-    "eslint-config-next": "14.2.24"
+    "typescript": "^5"
   },
   "packageManager": "npm@10.2.4+sha1.5ada7389d5f32b7a8e2900a9fd2f5eb5ed7e71c2"
 }
