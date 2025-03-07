@@ -42,13 +42,13 @@ type WeatherData = {
   };
 };
 
-export default function WeatherCard() {
+export default function WeatherCard({ locationKey }: { locationKey: string }) {
   const [weather, setWeather] = useState<WeatherData | null>(null);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     async function fetchWeather() {
-      const data = await getWeatherData();
+      const data = await getWeatherData(locationKey);
       setWeather(data);
       setLoading(false);
     }
@@ -57,7 +57,7 @@ export default function WeatherCard() {
     // 每30分钟更新一次天气数据
     const interval = setInterval(fetchWeather, 30 * 60 * 1000);
     return () => clearInterval(interval);
-  }, []);
+  }, [locationKey]);
 
   if (loading) {
     return (
@@ -147,7 +147,7 @@ function getWeatherEmoji(iconCode: number): string {
     11: '🌫️', // 雾
     12: '🌧️', // 雨
     13: '🌦️', // 零星阵雨
-    14: '🌧️', // 部分时间有雨
+    14: '��️', // 部分时间有雨
     15: '⛈️', // 雷雨
     16: '⛈️', // 雷阵雨
     17: '⛈️', // 雷暴

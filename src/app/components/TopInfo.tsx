@@ -1,14 +1,12 @@
 'use client';
 import { useState, useEffect } from 'react';
 
-export type TopInfoProps = {
-  time: string;
-  date: string;
+type TopInfoProps = {
   city: string;
   country: string;
 };
 
-export default function TopInfo({ city, country }: Omit<TopInfoProps, 'time' | 'date'>) {
+export default function TopInfo({ city, country }: TopInfoProps) {
   const [currentTime, setCurrentTime] = useState(new Date());
 
   useEffect(() => {
@@ -23,7 +21,7 @@ export default function TopInfo({ city, country }: Omit<TopInfoProps, 'time' | '
     <div className="mb-20">
       {/* 左侧时间日期 */}
       <div>
-        <div className="text-4xl font-light mb-2 text-white">
+        <div className="text-6xl font-light mb-2 text-white">
           {currentTime.toLocaleTimeString('en-US', {
             hour: 'numeric',
             minute: '2-digit',
