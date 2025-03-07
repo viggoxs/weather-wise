@@ -1,3 +1,8 @@
+'use client';
+
+import { useEffect, useState } from 'react';
+import { getWeatherData } from '@/lib/weather';
+
 type WeatherDetailProps = {
   icon: string;
   label: string;
@@ -18,6 +23,32 @@ function WeatherDetail({ icon, label, value, bgColor }: WeatherDetailProps) {
 }
 
 export default function WeatherCard() {
+  const [weather, setWeather] = useState<any>(null);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    async function fetchWeather() {
+      const data = await getWeatherData();
+      setWeather(data);
+      setLoading(false);
+    }
+
+    fetchWeather();
+    // 每30分钟更新一次天气数据
+    const interval = setInterval(fetchWeather, 30 * 60 * 1000);
+    return () => clearInterval(interval);
+  }, []);
+
+  if (loading) {
+    return (
+      <div className="fixed bottom-0 left-0 right-0 w-full bg-white shadow-lg backdrop-blur-sm">
+        <div className="max-w-7xl mx-auto p-8">
+          Loading...
+        </div>
+      </div>
+    );
+  }
+
   return (
     <div className="fixed bottom-0 left-0 right-0 w-full bg-white shadow-lg backdrop-blur-sm">
       <div className="max-w-7xl mx-auto">
@@ -25,13 +56,29 @@ export default function WeatherCard() {
           <div className="flex items-end gap-12">
             {/* 天气状态和温度 */}
             <div className="flex items-end gap-8">
-              <div className="text-6xl">☁️</div>
-              <div>
-                <div className="flex items-start">
-                  <span className="text-6xl font-light text-gray-800">26</span>
-                  <span className="text-2xl text-gray-800">°</span>
+              <div className="flex flex-col items-center">
+                <div className="text-6xl mb-2">
+                  {getWeatherEmoji(weather?.current?.WeatherIcon)}
                 </div>
-                <div className="text-gray-500">Mostly Cloudy</div>
+                <div className="text-gray-500">{weather?.current?.WeatherText}</div>
+              </div>
+              <div>
+                <div className="flex flex-col">
+                  <div className="flex items-start gap-1">
+                    <span className="text-4xl font-light text-gray-800">
+                      {Math.round(weather?.forecast?.Temperature?.Maximum?.Value || 0)}
+                    </span>
+                    <span className="text-lg text-gray-800">°</span>
+                    <span className="text-sm text-gray-500 mt-1">External</span>
+                  </div>
+                  <div className="flex items-start gap-1">
+                    <span className="text-4xl font-light text-gray-800">
+                      {Math.round(weather?.forecast?.Temperature?.Minimum?.Value || 0)}
+                    </span>
+                    <span className="text-lg text-gray-800">°</span>
+                    <span className="text-sm text-gray-500 mt-1">Internal</span>
+                  </div>
+                </div>
               </div>
             </div>
 
@@ -43,19 +90,19 @@ export default function WeatherCard() {
               <WeatherDetail 
                 icon="💧" 
                 label="Humidity (%)" 
-                value="20" 
+                value={`${weather?.current?.RelativeHumidity || 0}`}
                 bgColor="bg-blue-50"
               />
               <WeatherDetail 
                 icon="🌡️" 
-                label="CO₂ Levels (ppm)" 
-                value="486" 
+                label="Feels Like" 
+                value={`${Math.round(weather?.current?.RealFeelTemperature?.Metric?.Value || 0)}°`}
                 bgColor="bg-green-50"
               />
               <WeatherDetail 
-                icon="🏠" 
-                label="TVOC Levels (ppb)" 
-                value="935" 
+                icon="💨" 
+                label="Wind (km/h)" 
+                value={`${Math.round(weather?.current?.Wind?.Speed?.Metric?.Value || 0)}`}
                 bgColor="bg-yellow-50"
               />
             </div>
@@ -64,4 +111,30 @@ export default function WeatherCard() {
       </div>
     </div>
   );
+}
+
+// 根据天气图标代码返回对应的emoji
+function getWeatherEmoji(iconCode: number): string {
+  const weatherIcons: { [key: number]: string } = {
+    1: '☀️',  // 晴天
+    2: '🌤️',  // 大部晴朗
+    3: '⛅',  // 多云
+    4: '☁️',  // 阴天
+    5: '🌫️',  // 霾
+    6: '☁️',  // 多云
+    7: '☁️',  // 阴天
+    8: '⛅',  // 多云
+    11: '🌫️', // 雾
+    12: '🌧️', // 雨
+    13: '🌦️', // 零星阵雨
+    14: '🌧️', // 部分时间有雨
+    15: '⛈️', // 雷雨
+    16: '⛈️', // 雷阵雨
+    17: '⛈️', // 雷暴
+    18: '🌧️', // 雨
+    19: '🌨️', // 雪
+    // ... 可以根据需要添加更多天气代码
+  };
+
+  return weatherIcons[iconCode] || '☀️';
 } 
