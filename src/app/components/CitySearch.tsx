@@ -139,7 +139,7 @@ export default function CitySearch() {
   };
 
   return (
-    <div className="fixed top-8 right-12 z-50">
+    <div className="relative">
       {/* Search button */}
       <button
         onClick={() => setIsOpen(true)}

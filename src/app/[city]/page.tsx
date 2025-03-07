@@ -2,7 +2,6 @@ import { getCityInfo } from '@/lib/weather';
 import BackgroundImage from '../components/BackgroundImage';
 import WeatherCard from '../components/WeatherCard';
 import TopInfo from '../components/TopInfo';
-import CitySearch from '../components/CitySearch';
 
 export default async function CityPage({ params }: { params: { city: string } }) {
   const cityInfo = await getCityInfo(params.city);
@@ -19,7 +18,6 @@ export default async function CityPage({ params }: { params: { city: string } })
   return (
     <>
       <BackgroundImage />
-      <CitySearch />
       <main className="min-h-screen p-8 md:p-12">
         <TopInfo 
           city={cityInfo.LocalizedName}

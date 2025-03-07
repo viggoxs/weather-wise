@@ -1,5 +1,6 @@
 'use client';
 import { useState, useEffect } from 'react';
+import CitySearch from './CitySearch';
 
 type TopInfoProps = {
   city: string;
@@ -39,9 +40,12 @@ export default function TopInfo({ city, country }: TopInfoProps) {
       </div>
 
       {/* 右侧位置信息 */}
-      <div className="absolute top-8 right-12">
-        <div className="text-2xl font-light text-right text-white">{city}</div>
-        <div className="text-white/70">{country}</div>
+      <div className="absolute top-8 right-8 flex items-center gap-4">
+        <div>
+          <div className="text-2xl font-light text-right text-white">{city}</div>
+          <div className="text-white/70 text-right">{country}</div>
+        </div>
+        <CitySearch />
       </div>
     </div>
   );
