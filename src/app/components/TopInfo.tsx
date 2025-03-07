@@ -8,7 +8,7 @@ export type TopInfoProps = {
   country: string;
 };
 
-export default function TopInfo({ time, date, city, country }: TopInfoProps) {
+export default function TopInfo({ city, country }: Omit<TopInfoProps, 'time' | 'date'>) {
   const [currentTime, setCurrentTime] = useState(new Date());
 
   useEffect(() => {
@@ -19,29 +19,25 @@ export default function TopInfo({ time, date, city, country }: TopInfoProps) {
     return () => clearInterval(timer);
   }, []);
 
-  const formatTime = (date: Date) => {
-    return date.toLocaleTimeString('en-US', {
-      hour: 'numeric',
-      minute: '2-digit',
-      hour12: true
-    });
-  };
-
-  const formatDate = (date: Date) => {
-    return date.toLocaleDateString('en-US', {
-      weekday: 'long',
-      year: 'numeric',
-      month: 'long',
-      day: 'numeric'
-    });
-  };
-
   return (
     <div className="mb-20">
       {/* 左侧时间日期 */}
       <div>
-        <div className="text-4xl font-light mb-2 text-white">{time}</div>
-        <div className="text-lg text-white/70">{date}</div>
+        <div className="text-4xl font-light mb-2 text-white">
+          {currentTime.toLocaleTimeString('en-US', {
+            hour: 'numeric',
+            minute: '2-digit',
+            hour12: true
+          })}
+        </div>
+        <div className="text-lg text-white/70">
+          {currentTime.toLocaleDateString('en-US', {
+            weekday: 'long',
+            year: 'numeric',
+            month: 'long',
+            day: 'numeric'
+          })}
+        </div>
       </div>
 
       {/* 右侧位置信息 */}

@@ -1,4 +1,3 @@
-import { Suspense } from 'react';
 import BackgroundImage from './components/BackgroundImage';
 import WeatherCard from './components/WeatherCard';
 import TopInfo from './components/TopInfo';
@@ -9,8 +8,6 @@ export default function Home() {
       <BackgroundImage />
       <main className="min-h-screen p-8 md:p-12">
         <TopInfo 
-          time="7:10 AM"
-          date="Friday, January 26, 2024"
           city="Beijing"
           country="China"
         />

@@ -22,8 +22,28 @@ function WeatherDetail({ icon, label, value, bgColor }: WeatherDetailProps) {
   );
 }
 
+type WeatherData = {
+  current: {
+    WeatherText: string;
+    WeatherIcon: number;
+    RelativeHumidity: number;
+    RealFeelTemperature: {
+      Metric: { Value: number }
+    };
+    Wind: {
+      Speed: { Metric: { Value: number } }
+    };
+  };
+  forecast: {
+    Temperature: {
+      Maximum: { Value: number };
+      Minimum: { Value: number };
+    };
+  };
+};
+
 export default function WeatherCard() {
-  const [weather, setWeather] = useState<any>(null);
+  const [weather, setWeather] = useState<WeatherData | null>(null);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
@@ -58,7 +78,7 @@ export default function WeatherCard() {
             <div className="flex items-end gap-8">
               <div className="flex flex-col items-center">
                 <div className="text-6xl mb-2">
-                  {getWeatherEmoji(weather?.current?.WeatherIcon)}
+                  {getWeatherEmoji(weather?.current?.WeatherIcon || 1)}
                 </div>
                 <div className="text-gray-500">{weather?.current?.WeatherText}</div>
               </div>
