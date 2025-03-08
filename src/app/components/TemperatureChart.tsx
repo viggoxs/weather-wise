@@ -58,9 +58,14 @@ export default function TemperatureChart({ dailyForecasts }: TemperatureChartPro
   // 找到今天的索引
   const todayIndex = sortedForecasts.findIndex(day => day.dayType === 'today');
   
-  // 创建点的样式数组，所有点都是白色，今天的点更大
+  // 创建点的样式数组，今天的点会有不同的样式
+  const pointBackgroundColors = sortedForecasts.map(day => 
+    day.dayType === 'today' ? '#FFFFFF' : 'rgba(255, 255, 255)'
+  );
+  
+  
   const pointRadiuses = sortedForecasts.map(day => 
-    day.dayType === 'today' ? 6 : 3
+    day.dayType === 'today' ? 6 : 4
   );
 
   const data = {
@@ -73,9 +78,8 @@ export default function TemperatureChart({ dailyForecasts }: TemperatureChartPro
         backgroundColor: 'rgba(255, 255, 255, 0.2)',
         tension: 0.3, // 使曲线更平滑
         pointRadius: pointRadiuses,
-        pointBackgroundColor: '#FFFFFF', // 所有点都是纯白色
-        pointBorderColor: '#FFFFFF',     // 所有点的边框也是白色
-        pointBorderWidth: 0,             // 没有边框
+        pointBackgroundColor: pointBackgroundColors,
+        pointBorderWidth: 0, // 去掉圆点描边
         // 确保点在中间
         barPercentage: 1.0,
         categoryPercentage: 1.0,

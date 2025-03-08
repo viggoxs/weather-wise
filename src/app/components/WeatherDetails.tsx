@@ -140,13 +140,13 @@ export default function WeatherDetails({
         <div className="text-center mb-6 flex flex-col items-center justify-center">
           <span className="text-4xl mb-2">{tempComparison.icon}</span>
           <span 
-            className="text-3xl md:text-4xl font-medium text-white/80"
+            className="text-3xl md:text-5xl font-medium text-white/80"
             dangerouslySetInnerHTML={{ __html: highlightTempChange(tempComparison.text) }}
           />
           
           {/* 是否需要带伞的提示 */}
           {umbrella && (
-            <div className="flex items-center mt-3 text-sm text-white/70">
+            <div className="flex items-center mt-3 text-md sm:text-xl text-white/70">
               {umbrella.icon}
               <span>{umbrella.text}</span>
             </div>
@@ -175,7 +175,7 @@ export default function WeatherDetails({
       
       {/* 温度变化趋势曲线 - 放在最下面 */}
       {dailyForecasts && dailyForecasts.length > 0 && (
-        <div className="w-full px-4 md:px-12">
+        <div className="w-full">
           <TemperatureChart dailyForecasts={dailyForecasts} />
         </div>
       )}

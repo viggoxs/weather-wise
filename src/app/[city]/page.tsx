@@ -32,14 +32,17 @@ export default async function CityPage({ params }: { params: { city: string } })
       {/* 添加半透明暗色叠加层，使白色文字更加清晰 */}
       <div className="fixed inset-0 bg-black/30 pointer-events-none" />
       
-      <main className="min-h-screen p-8 md:p-12 relative z-10">
-        <TopInfo 
-          city={cityInfo.LocalizedName}
-          country={cityInfo.Country.LocalizedName}
-        />
+      <main className="h-screen relative z-10 flex flex-col justify-between overflow-hidden">
+        {/* 顶部区域 */}
+        <div>
+          <TopInfo 
+            city={cityInfo.LocalizedName}
+            country={cityInfo.Country.LocalizedName}
+          />
+        </div>
         
-        {/* 添加天气详情组件 - 居中显示 */}
-        <div className="flex justify-center items-center mt-16 md:mt-24">
+        {/* 中间区域 - 天气详情组件居中显示 */}
+        <div className="flex-grow flex justify-center items-center">
           <WeatherDetails 
             precipitationProbability={todayForecast?.precipitationProbability || 0}
             sunrise={todayForecast?.sunrise || ''}
@@ -51,8 +54,8 @@ export default async function CityPage({ params }: { params: { city: string } })
           />
         </div>
         
-        <div className="h-[20vh]" />
-        <WeatherCard locationKey={cityInfo.Key} />
+        {/* 底部区域 */}
+          <WeatherCard locationKey={cityInfo.Key} />
       </main>
     </>
   );

@@ -8,6 +8,13 @@
   --background-end-rgb: 255, 255, 255;
 }
 
+/* 禁用所有滚动条 */
+html, body {
+  overflow: hidden;
+  height: 100%;
+  width: 100%;
+}
+
 body {
   color: rgb(var(--foreground-rgb));
   background: linear-gradient(
@@ -16,6 +23,17 @@ body {
     rgb(var(--background-end-rgb))
   )
   rgb(var(--background-start-rgb));
+}
+
+/* 隐藏滚动条但保留滚动功能 */
+* {
+  -ms-overflow-style: none;  /* IE and Edge */
+  scrollbar-width: none;  /* Firefox */
+}
+
+/* 隐藏 Webkit 浏览器的滚动条 */
+*::-webkit-scrollbar {
+  display: none;
 }
 
 .weather-card {
