@@ -22,6 +22,9 @@ type WeatherData = {
     temperature_2m_max: number[];
     temperature_2m_min: number[];
     weather_code: number[];
+    sunrise: string[];
+    sunset: string[];
+    precipitation_probability_max: number[];
   };
 };
 
@@ -123,8 +126,9 @@ export async function getWeatherData(locationKey: string) {
 
     // Then get the weather data using the coordinates
     // 添加past_days=1参数获取昨天的数据，forecast_days=6获取今天和未来5天的数据
+    // 添加daily=sunrise,sunset,precipitation_probability获取日出、日落和下雨概率数据
     const weatherResponse = await fetch(
-      `https://api.open-meteo.com/v1/forecast?latitude=${locationData.latitude}&longitude=${locationData.longitude}&current=temperature_2m,relative_humidity_2m,apparent_temperature,wind_speed_10m,weather_code&daily=weather_code,temperature_2m_max,temperature_2m_min&timezone=${locationData.timezone}&forecast_days=6&past_days=1`
+      `https://api.open-meteo.com/v1/forecast?latitude=${locationData.latitude}&longitude=${locationData.longitude}&current=temperature_2m,relative_humidity_2m,apparent_temperature,wind_speed_10m,weather_code&daily=weather_code,temperature_2m_max,temperature_2m_min,sunrise,sunset,precipitation_probability_max&timezone=${locationData.timezone}&forecast_days=6&past_days=1`
     );
     const weatherData = await weatherResponse.json() as WeatherData;
 
@@ -154,7 +158,10 @@ export async function getWeatherData(locationKey: string) {
           minimum: weatherData.daily.temperature_2m_min[index]
         },
         weatherCode: weatherData.daily.weather_code[index],
-        weatherText: WEATHER_CODES[weatherData.daily.weather_code[index]]?.text || 'Unknown'
+        weatherText: WEATHER_CODES[weatherData.daily.weather_code[index]]?.text || 'Unknown',
+        sunrise: weatherData.daily.sunrise[index].split('T')[1].substring(0, 5),
+        sunset: weatherData.daily.sunset[index].split('T')[1].substring(0, 5),
+        precipitationProbability: weatherData.daily.precipitation_probability_max[index]
       };
     });
 

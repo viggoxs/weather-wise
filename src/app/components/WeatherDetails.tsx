@@ -1,6 +1,6 @@
 'use client';
 
-import { Droplets, Thermometer, Wind, Umbrella } from 'lucide-react';
+import { Droplets, Sunrise, Sunset, Umbrella } from 'lucide-react';
 
 type WeatherDetailProps = {
   icon: React.ReactNode;
@@ -21,18 +21,18 @@ function WeatherDetail({ icon, label, value }: WeatherDetailProps) {
 }
 
 type WeatherDetailsProps = {
-  humidity: number;
-  feelsLike: number;
-  windSpeed: number;
+  precipitationProbability: number;
+  sunrise: string;
+  sunset: string;
   todayTemp?: number;
   yesterdayTemp?: number;
   weatherCode?: number;
 };
 
 export default function WeatherDetails({ 
-  humidity, 
-  feelsLike, 
-  windSpeed,
+  precipitationProbability, 
+  sunrise, 
+  sunset,
   todayTemp,
   yesterdayTemp,
   weatherCode
@@ -47,30 +47,44 @@ export default function WeatherDetails({
       return {
         text: `Today is ${Math.abs(tempDiff)}° warmer than yesterday`,
         icon: '🔥',
-        isCooler: false
+        isWarmer: true,
+        isCooler: false,
+        isSame: false
       };
     } else if (tempDiff < 0) {
       return {
         text: `Today is ${Math.abs(tempDiff)}° cooler than yesterday`,
         icon: '❄️',
-        isCooler: true
+        isWarmer: false,
+        isCooler: true,
+        isSame: false
       };
     } else {
       return {
         text: "Today's temperature is the same as yesterday",
         icon: '⚖️',
-        isCooler: false
+        isWarmer: false,
+        isCooler: false,
+        isSame: true
       };
     }
   };
   
   const tempComparison = getTempComparison();
   
-  // 处理文本，突出显示"cooler"
-  const highlightCooler = (text: string) => {
-    if (!tempComparison?.isCooler) return text;
+  // 处理文本，突出显示"cooler"或"warmer"或"same"
+  const highlightTempChange = (text: string) => {
+    if (!tempComparison) return text;
     
-    return text.replace('cooler', '<span class="text-white font-semibold">cooler</span>');
+    if (tempComparison.isCooler) {
+      return text.replace('cooler', '<span class="text-white font-semibold">cooler</span>');
+    } else if (tempComparison.isWarmer) {
+      return text.replace('warmer', '<span class="text-white font-semibold uppercase">WARMER</span>');
+    } else if (tempComparison.isSame) {
+      return text.replace('same', '<span class="text-white font-semibold uppercase">SAME</span>');
+    }
+    
+    return text;
   };
   
   // 判断是否需要带伞
@@ -95,6 +109,17 @@ export default function WeatherDetails({
   
   const umbrella = needUmbrella();
   
+  // 格式化时间，从"HH:MM"格式转换为"HH:MM AM/PM"格式
+  const formatTime = (timeString: string) => {
+    if (!timeString) return '';
+    
+    const [hours, minutes] = timeString.split(':').map(Number);
+    const period = hours >= 12 ? 'PM' : 'AM';
+    const formattedHours = hours % 12 || 12;
+    
+    return `${formattedHours}:${minutes.toString().padStart(2, '0')} ${period}`;
+  };
+  
   return (
     <div className="mb-8 max-w-4xl mx-auto">
       {/* 温度比较文案 - 大字体居中显示 */}
@@ -103,7 +128,7 @@ export default function WeatherDetails({
           <span className="text-4xl mb-2">{tempComparison.icon}</span>
           <span 
             className="text-3xl md:text-4xl font-medium text-white/80"
-            dangerouslySetInnerHTML={{ __html: highlightCooler(tempComparison.text) }}
+            dangerouslySetInnerHTML={{ __html: highlightTempChange(tempComparison.text) }}
           />
           
           {/* 是否需要带伞的提示 */}
@@ -120,18 +145,18 @@ export default function WeatherDetails({
       <div className="flex justify-center gap-12 md:gap-20">
         <WeatherDetail 
           icon={<Droplets className="text-blue-300" strokeWidth={1.5} size={24} />} 
-          label="Humidity (%)" 
-          value={`${humidity || 0}`}
+          label="Precipitation" 
+          value={`${precipitationProbability || 0}%`}
         />
         <WeatherDetail 
-          icon={<Thermometer className="text-red-300" strokeWidth={1.5} size={24} />} 
-          label="Feels Like" 
-          value={`${Math.round(feelsLike || 0)}°`}
+          icon={<Sunrise className="text-yellow-300" strokeWidth={1.5} size={24} />} 
+          label="Sunrise" 
+          value={formatTime(sunrise)}
         />
         <WeatherDetail 
-          icon={<Wind className="text-green-300" strokeWidth={1.5} size={24} />} 
-          label="Wind (km/h)" 
-          value={`${Math.round(windSpeed || 0)}`}
+          icon={<Sunset className="text-orange-300" strokeWidth={1.5} size={24} />} 
+          label="Sunset" 
+          value={formatTime(sunset)}
         />
       </div>
     </div>

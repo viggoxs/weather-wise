@@ -41,9 +41,9 @@ export default async function CityPage({ params }: { params: { city: string } })
         {/* 添加天气详情组件 - 居中显示 */}
         <div className="flex justify-center items-center mt-16 md:mt-24">
           <WeatherDetails 
-            humidity={weatherData?.current?.RelativeHumidity || 0}
-            feelsLike={weatherData?.current?.RealFeelTemperature?.Metric?.Value || 0}
-            windSpeed={weatherData?.current?.Wind?.Speed?.Metric?.Value || 0}
+            precipitationProbability={todayForecast?.precipitationProbability || 0}
+            sunrise={todayForecast?.sunrise || ''}
+            sunset={todayForecast?.sunset || ''}
             todayTemp={todayTemp}
             yesterdayTemp={yesterdayTemp}
             weatherCode={todayForecast?.weatherCode}
