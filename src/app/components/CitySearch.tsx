@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef, useLayoutEffect } from 'react';
 import { Command } from 'cmdk';
 import { Search, X } from 'lucide-react';
 import { Transition } from '@headlessui/react';
@@ -26,7 +26,36 @@ export default function CitySearch() {
   const [search, setSearch] = useState('');
   const [results, setResults] = useState<SearchResult[]>([]);
   const [loading, setLoading] = useState(false);
+  const [selectedValue, setSelectedValue] = useState('');
+  const inputRef = useRef<HTMLInputElement>(null);
+  const commandRef = useRef<HTMLDivElement>(null);
   const router = useRouter();
+
+  // 使用 useLayoutEffect 确保在 DOM 更新后立即聚焦
+  useLayoutEffect(() => {
+    if (isOpen && inputRef.current) {
+      // 使用更长的延迟确保过渡动画完成后再聚焦
+      const focusTimer = setTimeout(() => {
+        inputRef.current?.focus();
+      }, 200);
+      return () => clearTimeout(focusTimer);
+    }
+  }, [isOpen]);
+
+  // 备用方法：使用普通的 useEffect 也尝试聚焦
+  useEffect(() => {
+    if (isOpen && inputRef.current) {
+      // 多次尝试聚焦，以应对可能的时机问题
+      const attempts = [50, 150, 300, 500];
+      const focusTimers = attempts.map(delay => 
+        setTimeout(() => {
+          inputRef.current?.focus();
+        }, delay)
+      );
+      
+      return () => focusTimers.forEach(timer => clearTimeout(timer));
+    }
+  }, [isOpen]);
 
   // Handle search
   useEffect(() => {
@@ -129,6 +158,20 @@ export default function CitySearch() {
     return (matchingWords.length / searchWords.length) * 70;
   };
 
+  // 处理键盘导航和选择
+  const handleKeyDown = (e: React.KeyboardEvent) => {
+    // 如果没有结果，不处理键盘导航
+    if (results.length === 0) return;
+
+    // 如果按下回车键且有选中的值，执行选择操作
+    if (e.key === 'Enter' && selectedValue) {
+      const selected = results.find(result => result.fullName === selectedValue);
+      if (selected) {
+        handleSelect(selected.fullName);
+      }
+    }
+  };
+
   const handleSelect = (value: string) => {
     const selected = results.find(result => result.fullName === value);
     if (selected) {
@@ -137,6 +180,14 @@ export default function CitySearch() {
       router.push(`/${urlFriendlyName}`);
       setIsOpen(false);
       setSearch('');
+      setSelectedValue('');
+    }
+  };
+
+  // 手动聚焦方法
+  const focusInput = () => {
+    if (inputRef.current) {
+      inputRef.current.focus();
     }
   };
 
@@ -144,7 +195,11 @@ export default function CitySearch() {
     <div className="relative">
       {/* Search button */}
       <button
-        onClick={() => setIsOpen(true)}
+        onClick={() => {
+          setIsOpen(true);
+          // 点击按钮后也尝试聚焦
+          setTimeout(focusInput, 100);
+        }}
         className="w-12 h-12 rounded-full bg-white/10 backdrop-blur-lg flex items-center justify-center
                    hover:bg-white/20 transition-all duration-200 text-white"
       >
@@ -160,21 +215,33 @@ export default function CitySearch() {
         leave="transition duration-150 ease-in"
         leaveFrom="transform scale-100 opacity-100"
         leaveTo="transform scale-95 opacity-0"
+        afterEnter={focusInput}
       >
         <div className="absolute top-0 right-0 w-80 bg-white rounded-lg shadow-xl overflow-hidden">
-          <Command className="border-none" shouldFilter={false}>
+          <Command 
+            className="border-none" 
+            shouldFilter={false} 
+            ref={commandRef} 
+            loop
+            value={selectedValue}
+            onValueChange={setSelectedValue}
+            onKeyDown={handleKeyDown}
+          >
             <div className="flex items-center border-b border-gray-100 p-2">
               <Search className="w-4 h-4 text-gray-400 mr-2" />
               <Command.Input
+                ref={inputRef}
                 value={search}
                 onValueChange={setSearch}
                 placeholder="Search cities..."
                 className="w-full border-none outline-none placeholder:text-gray-400"
+                autoFocus
               />
               <button
                 onClick={() => {
                   setIsOpen(false);
                   setSearch('');
+                  setSelectedValue('');
                 }}
                 className="p-1 hover:bg-gray-100 rounded"
               >
@@ -201,7 +268,9 @@ export default function CitySearch() {
                     key={`${result.latitude}-${result.longitude}`}
                     value={result.fullName}
                     onSelect={handleSelect}
-                    className="py-2 px-3 rounded cursor-pointer text-sm hover:bg-gray-100"
+                    className={`py-2 px-3 rounded cursor-pointer text-sm hover:bg-gray-100 ${
+                      selectedValue === result.fullName ? 'bg-gray-100' : ''
+                    }`}
                   >
                     {result.fullName}
                   </Command.Item>
