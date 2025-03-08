@@ -61,12 +61,32 @@ export async function getCityInfo(cityName: string): Promise<{
   longitude: number;
 } | null> {
   try {
+    // 处理 URL 友好的城市名（将连字符替换为空格）
+    const searchName = cityName.replace(/-/g, ' ');
+    
     const response = await fetch(
-      `https://geocoding-api.open-meteo.com/v1/search?name=${encodeURIComponent(cityName)}&count=1&language=en&format=json`
+      `https://geocoding-api.open-meteo.com/v1/search?name=${encodeURIComponent(searchName)}&count=1&language=en&format=json`
     );
     const data = await response.json();
     
     if (!data.results?.[0]) {
+      // 如果找不到结果，尝试原始名称
+      if (searchName !== cityName) {
+        const originalResponse = await fetch(
+          `https://geocoding-api.open-meteo.com/v1/search?name=${encodeURIComponent(cityName)}&count=1&language=en&format=json`
+        );
+        const originalData = await originalResponse.json();
+        if (originalData.results?.[0]) {
+          const result = originalData.results[0] as GeocodingResult;
+          return {
+            LocalizedName: result.name,
+            Country: { LocalizedName: result.country },
+            Key: result.id.toString(),
+            latitude: result.latitude,
+            longitude: result.longitude
+          };
+        }
+      }
       return null;
     }
 

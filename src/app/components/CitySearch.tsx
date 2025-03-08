@@ -132,7 +132,9 @@ export default function CitySearch() {
   const handleSelect = (value: string) => {
     const selected = results.find(result => result.fullName === value);
     if (selected) {
-      router.push(`/${selected.name.toLowerCase()}`);
+      // 将城市名转换为小写并替换空格为连字符，确保 URL 友好
+      const urlFriendlyName = selected.name.toLowerCase().replace(/\s+/g, '-');
+      router.push(`/${urlFriendlyName}`);
       setIsOpen(false);
       setSearch('');
     }
