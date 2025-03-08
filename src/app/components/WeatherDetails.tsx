@@ -1,6 +1,7 @@
 'use client';
 
 import { Droplets, Sunrise, Sunset, Umbrella } from 'lucide-react';
+import TemperatureChart from './TemperatureChart';
 
 type WeatherDetailProps = {
   icon: React.ReactNode;
@@ -27,6 +28,17 @@ type WeatherDetailsProps = {
   todayTemp?: number;
   yesterdayTemp?: number;
   weatherCode?: number;
+  dailyForecasts?: Array<{
+    date: string;
+    weekday: string;
+    dayType: string;
+    temperature: {
+      maximum: number;
+      minimum: number;
+    };
+    weatherCode: number;
+    weatherText: string;
+  }>;
 };
 
 export default function WeatherDetails({ 
@@ -35,7 +47,8 @@ export default function WeatherDetails({
   sunset,
   todayTemp,
   yesterdayTemp,
-  weatherCode
+  weatherCode,
+  dailyForecasts
 }: WeatherDetailsProps) {
   // 计算今天和昨天的温度差异
   const getTempComparison = () => {
@@ -92,7 +105,7 @@ export default function WeatherDetails({
     if (!weatherCode) return null;
     
     // 雨、雪、雷雨等天气代码，需要带伞
-    const rainyWeatherCodes = [12, 13, 14, 15, 16, 17, 18, 19];
+    const rainyWeatherCodes = [12, 13, 14, 15, 16, 17, 18, 19, 95, 96, 99];
     
     if (rainyWeatherCodes.includes(weatherCode)) {
       return {
@@ -121,7 +134,7 @@ export default function WeatherDetails({
   };
   
   return (
-    <div className="mb-8 max-w-4xl mx-auto">
+    <div className="mb-8 max-w-7xl mx-auto w-full">
       {/* 温度比较文案 - 大字体居中显示 */}
       {tempComparison && (
         <div className="text-center mb-6 flex flex-col items-center justify-center">
@@ -142,7 +155,7 @@ export default function WeatherDetails({
       )}
       
       {/* 三个值放在一行，变小 */}
-      <div className="flex justify-center gap-12 md:gap-20">
+      <div className="flex justify-center gap-12 md:gap-20 mb-8">
         <WeatherDetail 
           icon={<Droplets className="text-blue-300" strokeWidth={1.5} size={24} />} 
           label="Precipitation" 
@@ -159,6 +172,13 @@ export default function WeatherDetails({
           value={formatTime(sunset)}
         />
       </div>
+      
+      {/* 温度变化趋势曲线 - 放在最下面 */}
+      {dailyForecasts && dailyForecasts.length > 0 && (
+        <div className="w-full px-4 md:px-12">
+          <TemperatureChart dailyForecasts={dailyForecasts} />
+        </div>
+      )}
     </div>
   );
 } 

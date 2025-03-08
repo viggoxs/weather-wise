@@ -98,7 +98,7 @@ export default function WeatherCard({ locationKey }: { locationKey: string }) {
             <div className="hidden md:block h-16 w-px bg-gray-200 mx-4"></div>
             
             {/* 右侧：昨天、今天和未来几天的天气预报 */}
-            <div className="flex justify-between gap-3 md:gap-5 w-full md:w-auto overflow-x-auto pb-2">
+            <div className="flex justify-between gap-3 md:gap-5 w-full md:w-auto overflow-x-auto pb-2 px-2">
               {weather?.dailyForecasts
                 ?.filter(day => day.dayType === 'yesterday' || day.dayType === 'today' || !day.dayType)
                 ?.sort((a, b) => {

@@ -47,6 +47,7 @@ export default async function CityPage({ params }: { params: { city: string } })
             todayTemp={todayTemp}
             yesterdayTemp={yesterdayTemp}
             weatherCode={todayForecast?.weatherCode}
+            dailyForecasts={weatherData?.dailyForecasts}
           />
         </div>
         
