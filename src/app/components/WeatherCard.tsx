@@ -3,25 +3,6 @@
 import { useEffect, useState } from 'react';
 import { getWeatherData } from '@/lib/weather';
 
-type WeatherDetailProps = {
-  icon: string;
-  label: string;
-  value: string;
-  bgColor: string;
-};
-
-function WeatherDetail({ icon, label, value, bgColor }: WeatherDetailProps) {
-  return (
-    <div className="flex flex-col items-center">
-      <div className={`w-12 h-12 rounded-full ${bgColor} flex items-center justify-center mb-2`}>
-        <span className="text-xl">{icon}</span>
-      </div>
-      <div className="text-2xl font-light mb-1 text-gray-800">{value}</div>
-      <div className="text-sm text-gray-500">{label}</div>
-    </div>
-  );
-}
-
 type WeatherData = {
   current: {
     WeatherText: string;
@@ -40,6 +21,17 @@ type WeatherData = {
       Minimum: { Value: number };
     };
   };
+  dailyForecasts: Array<{
+    date: string;
+    weekday: string;
+    dayType: string; // 'yesterday', 'today', or ''
+    temperature: {
+      maximum: number;
+      minimum: number;
+    };
+    weatherCode: number;
+    weatherText: string;
+  }>;
 };
 
 export default function WeatherCard({ locationKey }: { locationKey: string }) {
@@ -72,12 +64,12 @@ export default function WeatherCard({ locationKey }: { locationKey: string }) {
   return (
     <div className="fixed bottom-0 left-0 right-0 w-full bg-white shadow-lg backdrop-blur-sm">
       <div className="max-w-7xl mx-auto">
-        <div className="p-8">
-          <div className="flex items-end gap-12">
-            {/* 天气状态和温度 */}
+        <div className="p-4 md:p-8">
+          <div className="flex flex-col md:flex-row justify-between items-center gap-6 md:gap-0">
+            {/* 左侧：今天天气状态和温度 */}
             <div className="flex items-end gap-8">
               <div className="flex flex-col items-center">
-                <div className="text-6xl mb-2">
+                <div className="text-5xl md:text-6xl mb-2">
                   {getWeatherEmoji(weather?.current?.WeatherIcon || 1)}
                 </div>
                 <div className="text-gray-500">{weather?.current?.WeatherText}</div>
@@ -85,14 +77,14 @@ export default function WeatherCard({ locationKey }: { locationKey: string }) {
               <div>
                 <div className="flex flex-col">
                   <div className="flex items-start gap-1">
-                    <span className="text-4xl font-light text-gray-800">
+                    <span className="text-3xl md:text-4xl font-light text-gray-800">
                       {Math.round(weather?.forecast?.Temperature?.Maximum?.Value || 0)}
                     </span>
                     <span className="text-lg text-gray-800">°</span>
                     <span className="text-sm text-gray-500 mt-1">External</span>
                   </div>
                   <div className="flex items-start gap-1">
-                    <span className="text-4xl font-light text-gray-800">
+                    <span className="text-3xl md:text-4xl font-light text-gray-800">
                       {Math.round(weather?.forecast?.Temperature?.Minimum?.Value || 0)}
                     </span>
                     <span className="text-lg text-gray-800">°</span>
@@ -101,30 +93,48 @@ export default function WeatherCard({ locationKey }: { locationKey: string }) {
                 </div>
               </div>
             </div>
-
-            {/* 分隔线 */}
-            <div className="h-16 w-px bg-gray-200" />
-
-            {/* 详细信息 */}
-            <div className="flex gap-16">
-              <WeatherDetail 
-                icon="💧" 
-                label="Humidity (%)" 
-                value={`${weather?.current?.RelativeHumidity || 0}`}
-                bgColor="bg-blue-50"
-              />
-              <WeatherDetail 
-                icon="🌡️" 
-                label="Feels Like" 
-                value={`${Math.round(weather?.current?.RealFeelTemperature?.Metric?.Value || 0)}°`}
-                bgColor="bg-green-50"
-              />
-              <WeatherDetail 
-                icon="💨" 
-                label="Wind (km/h)" 
-                value={`${Math.round(weather?.current?.Wind?.Speed?.Metric?.Value || 0)}`}
-                bgColor="bg-yellow-50"
-              />
+            
+            {/* 分隔线 - 仅在桌面显示 */}
+            <div className="hidden md:block h-16 w-px bg-gray-200 mx-4"></div>
+            
+            {/* 右侧：昨天、今天和未来几天的天气预报 */}
+            <div className="flex justify-between gap-3 md:gap-5 w-full md:w-auto overflow-x-auto pb-2">
+              {weather?.dailyForecasts
+                ?.filter(day => day.dayType === 'yesterday' || day.dayType === 'today' || !day.dayType)
+                ?.sort((a, b) => {
+                  // 确保昨天在最左边，今天在第二位，其他按日期排序
+                  if (a.dayType === 'yesterday') return -1;
+                  if (b.dayType === 'yesterday') return 1;
+                  if (a.dayType === 'today') return -1;
+                  if (b.dayType === 'today') return 1;
+                  return new Date(a.date).getTime() - new Date(b.date).getTime();
+                })
+                ?.slice(0, 7)
+                ?.map((day, index) => (
+                <div 
+                  key={index} 
+                  className={`flex flex-col items-center px-2 py-1 rounded-lg min-w-[60px] md:min-w-[70px] ${
+                    day.dayType === 'today' ? 'bg-blue-50 border border-blue-100' : 
+                    day.dayType === 'yesterday' ? 'bg-gray-50' : ''
+                  }`}
+                >
+                  <div className={`text-sm md:text-base font-medium mb-1 ${
+                    day.dayType === 'today' ? 'text-blue-600' : 
+                    day.dayType === 'yesterday' ? 'text-gray-500' : 'text-gray-500'
+                  }`}>
+                    {day.dayType === 'yesterday' ? 'Yesterday' : 
+                     day.dayType === 'today' ? 'Today' : day.weekday}
+                  </div>
+                  <div className="text-xl md:text-2xl mb-1">
+                    {getWeatherEmoji(day.weatherCode)}
+                  </div>
+                  <div className={`text-base md:text-lg font-light ${
+                    day.dayType === 'today' ? 'text-blue-700' : 'text-gray-700'
+                  }`}>
+                    {Math.round(day.temperature.maximum)}°
+                  </div>
+                </div>
+              ))}
             </div>
           </div>
         </div>
@@ -147,7 +157,7 @@ function getWeatherEmoji(iconCode: number): string {
     11: '🌫️', // 雾
     12: '🌧️', // 雨
     13: '🌦️', // 零星阵雨
-    14: '��️', // 部分时间有雨
+    14: '🌧️', // 部分时间有雨
     15: '⛈️', // 雷雨
     16: '⛈️', // 雷阵雨
     17: '⛈️', // 雷暴

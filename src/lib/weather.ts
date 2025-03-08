@@ -112,14 +112,51 @@ export async function getWeatherData(locationKey: string) {
     );
     const locationData = await response.json() as GeocodingResult;
 
+    // 获取昨天的日期
+    const yesterday = new Date();
+    yesterday.setDate(yesterday.getDate() - 1);
+    const yesterdayStr = yesterday.toISOString().split('T')[0];
+    
+    // 获取今天的日期
+    const today = new Date();
+    const todayStr = today.toISOString().split('T')[0];
+
     // Then get the weather data using the coordinates
+    // 添加past_days=1参数获取昨天的数据，forecast_days=6获取今天和未来5天的数据
     const weatherResponse = await fetch(
-      `https://api.open-meteo.com/v1/forecast?latitude=${locationData.latitude}&longitude=${locationData.longitude}&current=temperature_2m,relative_humidity_2m,apparent_temperature,wind_speed_10m,weather_code&daily=weather_code,temperature_2m_max,temperature_2m_min&timezone=${locationData.timezone}`
+      `https://api.open-meteo.com/v1/forecast?latitude=${locationData.latitude}&longitude=${locationData.longitude}&current=temperature_2m,relative_humidity_2m,apparent_temperature,wind_speed_10m,weather_code&daily=weather_code,temperature_2m_max,temperature_2m_min&timezone=${locationData.timezone}&forecast_days=6&past_days=1`
     );
     const weatherData = await weatherResponse.json() as WeatherData;
 
     const currentWeatherCode = weatherData.current.weather_code;
     const weatherInfo = WEATHER_CODES[currentWeatherCode] || { text: 'Unknown', icon: '❓' };
+
+    // 获取星期几的名称
+    const weekdays = ['Sun', 'Mon', 'Tues', 'Wed', 'Thur', 'Fri', 'Sat'];
+    const dailyForecasts = weatherData.daily.time.map((time, index) => {
+      const date = new Date(time);
+      const weekday = weekdays[date.getDay()];
+      
+      // 标记是否为昨天或今天
+      let dayType = '';
+      if (time === yesterdayStr) {
+        dayType = 'yesterday';
+      } else if (time === todayStr) {
+        dayType = 'today';
+      }
+      
+      return {
+        date: time,
+        weekday,
+        dayType,
+        temperature: {
+          maximum: weatherData.daily.temperature_2m_max[index],
+          minimum: weatherData.daily.temperature_2m_min[index]
+        },
+        weatherCode: weatherData.daily.weather_code[index],
+        weatherText: WEATHER_CODES[weatherData.daily.weather_code[index]]?.text || 'Unknown'
+      };
+    });
 
     return {
       current: {
@@ -142,21 +179,22 @@ export async function getWeatherData(locationKey: string) {
       forecast: {
         Temperature: {
           Maximum: {
-            Value: weatherData.daily.temperature_2m_max[0]
+            Value: weatherData.daily.temperature_2m_max[weatherData.daily.time.findIndex(t => t === todayStr)]
           },
           Minimum: {
-            Value: weatherData.daily.temperature_2m_min[0]
+            Value: weatherData.daily.temperature_2m_min[weatherData.daily.time.findIndex(t => t === todayStr)]
           }
         },
         Day: {
-          Icon: weatherData.daily.weather_code[0],
-          IconPhrase: WEATHER_CODES[weatherData.daily.weather_code[0]]?.text || 'Unknown'
+          Icon: weatherData.daily.weather_code[weatherData.daily.time.findIndex(t => t === todayStr)],
+          IconPhrase: WEATHER_CODES[weatherData.daily.weather_code[weatherData.daily.time.findIndex(t => t === todayStr)]]?.text || 'Unknown'
         },
         Night: {
-          Icon: weatherData.daily.weather_code[0],
-          IconPhrase: WEATHER_CODES[weatherData.daily.weather_code[0]]?.text || 'Unknown'
+          Icon: weatherData.daily.weather_code[weatherData.daily.time.findIndex(t => t === todayStr)],
+          IconPhrase: WEATHER_CODES[weatherData.daily.weather_code[weatherData.daily.time.findIndex(t => t === todayStr)]]?.text || 'Unknown'
         }
-      }
+      },
+      dailyForecasts
     };
   } catch (error) {
     console.error('Error fetching weather:', error);
