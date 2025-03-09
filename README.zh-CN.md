@@ -40,9 +40,15 @@ bun dev
 在根目录创建 `.env.local` 文件，包含以下变量：
 
 ```
-ACCUWEATHER_API_KEY=你的_accuweather_api_密钥
-UNSPLASH_ACCESS_KEY=你的_unsplash_access_密钥
+NEXT_PUBLIC_UNSPLASH_ACCESS_KEY=你的_unsplash_access_密钥
 ```
+
+## 使用的API
+
+本项目使用以下API：
+
+- [Open-Meteo API](https://open-meteo.com/) - 免费的天气数据和地理编码API
+- [Unsplash API](https://unsplash.com/developers) - 用于获取美丽的天气相关背景图片
 
 ## 了解更多
 
@@ -51,8 +57,8 @@ UNSPLASH_ACCESS_KEY=你的_unsplash_access_密钥
 - [Next.js 文档](https://nextjs.org/docs)
 - [React 文档](https://reactjs.org/docs)
 - [Tailwind CSS 文档](https://tailwindcss.com/docs)
-- [AccuWeather API](https://developer.accuweather.com/)
-- [Unsplash API](https://unsplash.com/developers)
+- [Open-Meteo API 文档](https://open-meteo.com/en/docs)
+- [Unsplash API 文档](https://unsplash.com/documentation)
 
 ## 许可证
 

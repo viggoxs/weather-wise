@@ -40,9 +40,15 @@ Open [http://localhost:3000](http://localhost:3000) with your browser to see the
 Create a `.env.local` file in the root directory with the following variables:
 
 ```
-ACCUWEATHER_API_KEY=your_accuweather_api_key
-UNSPLASH_ACCESS_KEY=your_unsplash_access_key
+NEXT_PUBLIC_UNSPLASH_ACCESS_KEY=your_unsplash_access_key
 ```
+
+## APIs Used
+
+This project uses the following APIs:
+
+- [Open-Meteo API](https://open-meteo.com/) - Free weather API for weather data and geocoding
+- [Unsplash API](https://unsplash.com/developers) - For beautiful weather-related background images
 
 ## Learn More
 
@@ -51,8 +57,8 @@ To learn more about the technologies used in this project:
 - [Next.js Documentation](https://nextjs.org/docs)
 - [React Documentation](https://reactjs.org/docs)
 - [Tailwind CSS Documentation](https://tailwindcss.com/docs)
-- [AccuWeather API](https://developer.accuweather.com/)
-- [Unsplash API](https://unsplash.com/developers)
+- [Open-Meteo API Documentation](https://open-meteo.com/en/docs)
+- [Unsplash API Documentation](https://unsplash.com/documentation)
 
 ## License
 
